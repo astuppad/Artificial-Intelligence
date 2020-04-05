@@ -1,0 +1,147 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Mar 26 19:09:12 2020
+
+@author: nj1000275242
+"""
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+def model_linear(x, w):
+    y = w[1] * x + w[0]
+    return y
+
+def loss_MSE(y, t):
+    N = np.shape(y)[0]
+    loss = np.sum(np.square(t - y)) / N
+    return loss
+
+def grad_MSE_linear(x, y, t):
+    x1 = np.vstack((np.ones_like(x), x))
+    e = (t.flatten() - y)
+    N = np.shape(x)[0]
+    
+    grad = -1.0 / N * x1.dot(e)
+    return grad
+
+
+x = np.array([-4, -3, -2, -1, 0, 1, 2, 3, 4])
+w_ideal = np.array([2.0, -5.0])
+t = w_ideal[1] * x + w_ideal[0] + 0.9 * np.random.randn(np.size(x))
+
+w = w_ideal
+y = model_linear(x, w)
+
+plt.scatter(x, t, c='b', marker='x')
+plt.plot(x, y, c='r')
+plt.xlabel('x')
+plt.ylabel('f(x)')
+
+
+loss = loss_MSE(y, t)
+print(loss)
+
+w = np.array([0.0, 6.0])
+learning_rate = 0.05
+iterations = 0
+
+y = model_linear(x, w)
+
+loss = loss_MSE(y, t)
+print(loss)
+
+plt.scatter(x, t, c='b', marker='x')
+plt.plot(x, y, c='r')
+plt.xlabel('x')
+plt.ylabel('f(x)')
+
+iterations += 1
+
+grad = grad_MSE_linear(x, y, t)
+delta_w = -learning_rate * grad
+w += delta_w
+
+y = model_linear(x, w)
+plt.scatter(x, t, c='b', marker='x')
+plt.plot(x, y, c='r')
+plt.xlabel('x')
+plt.ylabel('f(x)')
+
+print(w)
+
+
+min_abs_change = 0.005
+max_iter = 100
+
+iterations = 1
+while True:
+    
+    iterations += 1
+    grad = grad_MSE_linear(x, y, t)
+    delta_w = - learning_rate * grad
+    
+    if np.sum(abs(delta_w)) < min_abs_change:
+        break;
+    if iterations > max_iter:
+        break;
+        
+    w += delta_w
+        
+    y = model_linear(x, w)
+    plt.scatter(x, t, c='b', marker='x')
+    plt.plot(x, y, c='r')
+    plt.xlabel('x')
+    plt.ylabel('y')
+        
+    iterations += 1
+    print([iterations, w, loss_MSE(y, t)])
+    
+def model_logistic(x, w):
+    y = w[1]*w + w[0]
+    y = 1/ (1 + np.exp(-y))
+    return y
+
+def loss_CE(y, t):
+    N = np.shape(y)[0]
+    loss = - np.sum(t * np.log(y) + (1 - t) * np.log(1-y)) / N
+    return loss
+
+def grad_CE_logistic(x, y, t):
+    x1 = np.vstack((np.ones_like(x), x))
+    N = np.shape(y)[0]
+    grad = (1.0/len(x)) * np.dot(x1, y-t)/N
+    return grad
+    
+x = np.array([-4, -3, -2, -1, 0, 1, 2, 3, 4])
+w_ideal = np.array([0.0, 6.0])
+t = w_ideal[1] * x + w_ideal[0] + 0.9 * np.random.randn(np.size(x))
+learning_rate = 3
+
+y = model_logistic(x , w)
+iterations = 0
+max_iter = 100
+min_abs_change = 0.005
+
+while True:
+    
+    iterations += 1
+    grad = grad_CE_logistic(x, y, t)
+    delta_w = - learning_rate * grad
+    
+    if np.sum(np.abs(delta_w)) < min_abs_change:
+        break;
+    if iterations > max_iter:
+        break;
+        
+    w += delta_w
+    
+    y = model_logistic(x , w)
+    plt.scatter(x, t, c='b', marker='x')
+    plt.plot(x, y, c='r')
+    plt.xlabel('x')
+    plt.ylabel('f(x)')
+    
+    loss = loss_CE(y, t)
+    print(loss)

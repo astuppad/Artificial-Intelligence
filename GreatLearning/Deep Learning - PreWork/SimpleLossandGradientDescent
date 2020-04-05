@@ -1,0 +1,149 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Mar 25 10:56:00 2020
+
+@author: nj1000275242
+"""
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+def model_linear(x, w):
+    f = w[1] * x + w[0]
+    return f
+
+def loss_MSE(f, y):
+    loss = np.sum(np.square(y-f)) / np.size(f)
+    return loss
+
+def loss_MAE(f, y):
+    loss = np.sum(np.abs(y-f)) / np.size(f)
+    return loss
+
+
+x = np.array([0,1,2,3,4,5,6,7,8,9])
+w_ideal = np.array([3, -2])
+y = w_ideal[1] * x + w_ideal[0] + 0.9 * np.random.randn(np.size(x))
+
+w = w_ideal
+f = model_linear(x, w)
+
+plt.scatter(x, y, c='b', marker = 'x')
+plt.plot(x, f, c = 'r')
+plt.xlabel('x')
+plt.ylabel('y')
+
+loss = loss_MSE(f, y)
+print(loss)
+
+w = np.array([3.5, -1.9])
+f = model_linear(x, w)
+loss = loss_MSE(f, y)
+print(loss)
+
+loss = loss_MAE(f, y)
+print(loss)
+
+def grad2(w, x, y):
+    x1 = np.vstack((x, np.ones_like(x)))
+    f = w.dot(x1).flatten()
+    error = (y.flatten() - f)
+    gradient = -(1.0 / len(x)) * x1.dot(error)
+    return gradient, f
+
+w = np.array([10, 2.1])
+learning_rate = 0.0005
+min_abs_change = 1e-5
+max_iter = 10000
+
+iterations = 1
+while True:
+    gradient, f = grad2(w, x, y)
+    w_new = w - learning_rate * gradient
+    
+    if np.sum(abs(w_new - w)) < min_abs_change:
+        break
+    if iterations > max_iter:
+        break
+        
+    if iterations % (max_iter / 10) == 0:
+        plt.scatter(x, y, c='b', marker='x')
+        plt.plot(x, f, c='r')
+        plt.xlabel('x')
+        plt.ylabel('y')
+        
+    iterations += 1
+    w = w_new
+    
+    
+def grad2(w, x, y):
+    x1 = np.vstack((x, np.ones_like(x)))
+    f = w.dot(x1).flatten()
+    error = (y.flatten() - f)
+    gradient = -(1.0 / len(x)) * x1.dot(np.sign(error))
+    return gradient, f
+
+w = np.array([10, 2.1])
+learning_rate = 0.0005
+min_abs_change = 1e-5
+max_iter = 10000
+
+iterations = 1
+while True:
+    gradient, f = grad2(w, x, y)
+    w_new = w - learning_rate * gradient
+    
+    if np.sum(abs(w_new - w)) < min_abs_change:
+        break
+    if iterations > max_iter:
+        break
+        
+    if iterations % (max_iter / 10) == 0:
+        plt.scatter(x, y, c='b', marker='x')
+        plt.plot(x, f, c='r')
+        plt.xlabel('x')
+        plt.ylabel('y')
+        
+    iterations += 1
+    w = w_new
+    
+    
+    
+def grad2L2(w, x, y, l):
+    x1 = np.vstack((x, np.ones_like(x)))
+    f = w.dot(x1).flatten()
+    error = (y.flatten() - f)
+    gradient = -(1.0/len(x)) * x1.dot(error) +  l * np.hstack((w[0,],np.zeros_like(w[1])))
+    return gradient, f
+
+
+
+w = np.array([10, 2.1]) 
+learning_rate = 0.0005
+min_abs_change = 1e-5
+max_iter = 10000
+l = 1000
+
+iterations = 1
+while True:
+    gradient, f = grad2L2(w, x, y, l)
+    w_new = w - learning_rate * gradient
+    
+    # Stopping Condition
+    if np.sum(abs(w_new - w)) < min_abs_change:
+        break
+    if iterations > max_iter:
+        break
+    
+    if iterations % (max_iter/10) == 0:
+        # Plot data
+        plt.scatter(x, y, c="b", marker='x')
+        plt.plot(x, f, c="r")
+        plt.xlabel("x")
+        plt.ylabel("f(x) and y")
+    
+    iterations += 1
+    w = w_new
+    
+

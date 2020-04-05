@@ -1,0 +1,113 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Mar 24 11:24:36 2020
+
+@author: nj1000275242
+"""
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+def funct(x, w):
+    f = w[2]*x*x + w[1]*x + w[0] #ax^2+bx+c
+    return f
+
+def grad_funct(x, w):
+    grad_f = 2*w[2]*x + w[1] #2ax+b
+    return grad_f
+
+#Cook up data
+x = np.array([-4, -3, -2, -1, 0, 1, 2, 3 ,4, 5, 6, 7, 8, 9]) #inputs
+w = np.array([3, -2, 1])
+f = funct(x, w) #model
+
+#plot data
+plt.scatter(x, f, c="b", marker="x")
+plt.plot(x, f, c="r")
+plt.xlabel("x")
+plt.ylabel("f(x)")
+
+# Perform Gradient Descent on f(x)
+
+# GRADIENT DESCENT
+
+x = 6 #some guess
+learning_rate = 0.005
+min_abs_change = 1e-5
+max_iter = 1000
+
+x_series = [x]
+iterations = 1
+while True:
+    f = funct(x, w)
+    grad_f = grad_funct(x, w)
+    x_new = x - learning_rate * grad_f
+    
+    #Stopping condition
+    if np.sum(abs(x_new - x)) < min_abs_change:
+        break
+    if iterations > max_iter:
+        break
+    
+    if iterations % (max_iter/10) == 0:
+        # Plot data
+        plt.scatter(x, f, c="b", marker="x")
+        plt.plot(x, f, c="r")
+        plt.xlabel("x")
+        plt.ylabel("f(x)")
+    
+    iterations += 1
+    x = x_new
+    
+    x_series = np.concatenate((x_series, [x]))
+    
+x_series.shape
+
+
+# Performing Gradient Descent with ADAM on f(x)
+
+# GRADIENT DESCENT 
+
+x = 6
+alpha = 0.001
+beta1 = 0.9
+beta2 =0.9
+min_abs_change = 1e-4
+max_iter = 1000
+m = 0*x
+v = 0*x
+epsilon = 10e-8
+
+x_series = [x]
+
+iterations = 1
+while True:
+    f = funct(x, w)
+    grad_f = grad_funct(x, w)
+    m = beta1 * m + (1 - beta1) * grad_f
+    v = beta2 * v + (1 - beta2) * grad_f * grad_f
+    m_hat = m / (1 - np.power(beta1, iterations))
+    v_hat = v / (1 - np.power(beta2, iterations))
+    x_new = x_new - alpha * m_hat / np.sqrt(v_hat + epsilon)
+    
+    # Stopping condition
+    if np.sum(abs(x_new - x)) < min_abs_change:
+        break
+    if iterations > max_iter:
+        break
+        
+    if iterations % (max_iter/2) == 0:
+        # Plot data
+        plt.scatter(x, f, c="b", marker='x')
+        plt.plot(x, f, c="r")
+        plt.xlabel("x")
+        plt.ylabel("f(x)")
+    
+    iterations += 1
+    x = x_new
+    
+    x_series = np.concatenate((x_series, [x]))
+
+x_series
+
